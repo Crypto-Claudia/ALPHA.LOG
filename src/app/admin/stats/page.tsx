@@ -160,7 +160,7 @@ export default async function AdminStatsPage() {
             {popularPosts.length === 0 ? (
               <p className="text-xs text-slate-400 py-6 text-center">집계된 포스트가 없습니다.</p>
             ) : (
-              popularPosts.map((post, idx) => (
+              popularPosts.map((post: any, idx: number) => (
                 <div key={post.id} className="py-3.5 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
                   <div className="flex items-center gap-3 overflow-hidden">
                     <span className="w-6 h-6 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs flex-shrink-0">
@@ -193,7 +193,7 @@ export default async function AdminStatsPage() {
             {recentActivities.length === 0 ? (
               <p className="text-xs text-slate-400 py-6 text-center">수집된 활동 이력이 없습니다.</p>
             ) : (
-              recentActivities.map((log) => (
+              recentActivities.map((log: any) => (
                 <div key={log.id} className="p-3 bg-slate-50 border border-slate-150 rounded-xl space-y-1.5">
                   <div className="flex items-center justify-between text-[10px] text-slate-400">
                     <div className="flex items-center gap-1.5">
@@ -242,7 +242,7 @@ export default async function AdminStatsPage() {
                   <td colSpan={4} className="py-6 text-center text-slate-400">수집된 방문 이력이 없습니다.</td>
                 </tr>
               ) : (
-                recentVisits.map((visit) => (
+                recentVisits.map((visit: any) => (
                   <tr key={visit.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-3 px-3 font-semibold text-slate-800 font-mono break-all">{visit.path}</td>
                     <td className="py-3 px-3 font-mono">{visit.ip}</td>
