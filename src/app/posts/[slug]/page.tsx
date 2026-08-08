@@ -119,59 +119,62 @@ export default async function PostDetailPage(props: Params) {
         </div>
       )}
 
-      {/* Header Info */}
-      <div className="glass-panel -mx-4 sm:mx-0 p-5 sm:p-10 rounded-none sm:rounded-3xl border-x-0 sm:border-x border-slate-200 space-y-4">
-        {/* Category Label */}
-        {post.category && (
-          <div>
-            <Link href={`/?category=${post.category.slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-100 px-3 py-1 rounded-md hover:bg-cyan-100 transition-colors">
-              <Folder size={12} /> {post.category.name}
-            </Link>
+      {/* Single Main Card Container */}
+      <div className="glass-panel -mx-4 sm:mx-0 rounded-none sm:rounded-3xl border-x-0 sm:border-x border-slate-200 overflow-hidden bg-white flex flex-col">
+        {/* 1. Header Info (Title and Metadata) */}
+        <div className="p-5 sm:p-10 pb-6 border-b border-slate-100 space-y-4">
+          {/* Category Label */}
+          {post.category && (
+            <div>
+              <Link href={`/?category=${post.category.slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-100 px-3 py-1 rounded-md hover:bg-cyan-100 transition-colors">
+                <Folder size={12} /> {post.category.name}
+              </Link>
+            </div>
+          )}
+
+          <h1 className="text-[20px] sm:text-[32px] font-normal text-slate-900 leading-tight post-detail-title">
+            {post.title}
+          </h1>
+
+          {/* Post Metadata & Admin Controls */}
+          <div className="pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center text-xs text-slate-500 gap-4">
+            <div className="flex flex-wrap gap-4 items-center">
+              <span className="flex items-center gap-1">
+                <Calendar size={14} className="text-violet-600" /> {new Date(post.createdAt).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })}
+              </span>
+              <span className="flex items-center gap-1">
+                <Eye size={14} className="text-cyan-600" /> 조회 {post.viewCount}회
+              </span>
+            </div>
+            
+            {/* 어드민 조작 버튼 이식 */}
+            {isAdmin && <PostAdminActions slug={post.slug} published={post.published} />}
+          </div>
+        </div>
+
+        {/* 2. Main Thumbnail (Flush) */}
+        {post.thumbnail && (
+          <div className="w-full aspect-[1200/630] overflow-hidden border-b border-slate-100 bg-slate-50 relative">
+            <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover" />
           </div>
         )}
 
-        <h1 className="text-[20px] sm:text-[32px] font-normal text-slate-900 leading-tight post-detail-title">
-          {post.title}
-        </h1>
-
-        {/* Post Metadata & Admin Controls */}
-        <div className="pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center text-xs text-slate-500 gap-4">
-          <div className="flex flex-wrap gap-4 items-center">
-            <span className="flex items-center gap-1">
-              <Calendar size={14} className="text-violet-600" /> {new Date(post.createdAt).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })}
-            </span>
-            <span className="flex items-center gap-1">
-              <Eye size={14} className="text-cyan-600" /> 조회 {post.viewCount}회
-            </span>
-          </div>
+        {/* 3. Body Content & Tags Area */}
+        <div className="p-5 sm:p-10 pt-6 sm:pt-8 space-y-6">
+          <div className="tiptap-content text-slate-800" dangerouslySetInnerHTML={{ __html: post.content }} />
           
-          {/* 어드민 조작 버튼 이식 */}
-          {isAdmin && <PostAdminActions slug={post.slug} published={post.published} />}
+          {/* Tags Block */}
+          {post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-6 border-t border-slate-100">
+              {post.tags.map((tag: any) => (
+                <Link key={tag.id} href={`/?tag=${tag.slug}`} className="inline-flex items-center text-xs px-3 py-1 rounded-full border border-slate-200 text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-all">
+                  <TagIcon size={12} className="mr-1 text-cyan-600" /> {tag.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Main Thumbnail */}
-      {post.thumbnail && (
-        <div className="w-full aspect-[1200/630] overflow-hidden -mx-4 sm:mx-0 rounded-none sm:rounded-3xl border-x-0 sm:border-x border-slate-200 shadow-sm relative bg-slate-50">
-          <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover" />
-        </div>
-      )}
-
-      {/* Content Render (text-gray-200 하드코딩 제거, 선명한 text-slate-800 교체) */}
-      <div className="glass-panel -mx-4 sm:mx-0 p-5 sm:p-10 rounded-none sm:rounded-3xl border-x-0 sm:border-x border-slate-200">
-        <div className="tiptap-content text-slate-800" dangerouslySetInnerHTML={{ __html: post.content }} />
-      </div>
-
-      {/* Tags Block */}
-      {post.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-4">
-          {post.tags.map((tag: any) => (
-            <Link key={tag.id} href={`/?tag=${tag.slug}`} className="inline-flex items-center text-xs px-3 py-1 rounded-full border border-slate-200 text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-all">
-              <TagIcon size={12} className="mr-1 text-cyan-600" /> {tag.name}
-            </Link>
-          ))}
-        </div>
-      )}
 
       {/* Comment Section (Client Component) */}
       <div className="pt-8">

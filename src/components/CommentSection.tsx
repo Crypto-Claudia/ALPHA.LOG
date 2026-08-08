@@ -217,11 +217,11 @@ export default function CommentSection({ postId, initialComments, isAdmin = fals
             <div key={comment.id} className="space-y-4">
               {/* 부모 댓글 */}
               {comment.isDeleted ? (
-                <div className="glass-panel p-4 rounded-2xl border-slate-200 bg-slate-50/40 relative text-slate-400 text-xs italic">
+                <div className="glass-panel -mx-4 sm:mx-0 p-4 rounded-none sm:rounded-2xl border-x-0 sm:border-x border-slate-200 bg-slate-50/40 relative text-slate-400 text-xs italic">
                   삭제된 댓글입니다.
                 </div>
               ) : (
-                <div className="glass-panel p-5 rounded-2xl border-slate-200 relative group bg-white">
+                <div className="glass-panel -mx-4 sm:mx-0 p-5 rounded-none sm:rounded-2xl border-x-0 sm:border-x border-slate-200 relative group bg-white">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <span className="font-semibold text-slate-800 text-sm">{comment.author}</span>
@@ -268,7 +268,7 @@ export default function CommentSection({ postId, initialComments, isAdmin = fals
               {hasActiveReplies && (
                 <div className="pl-8 space-y-3 border-l-2 border-violet-100 ml-4">
                   {activeReplies.map((reply: any) => (
-                    <div key={reply.id} className="glass-panel p-4 rounded-2xl border-slate-200 bg-slate-50/50 relative group">
+                    <div key={reply.id} className="glass-panel -mr-4 sm:mr-0 pl-4 pr-5 py-4 rounded-l-2xl rounded-r-none sm:rounded-r-2xl border-r-0 sm:border-r border-slate-200 bg-slate-50/50 relative group">
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <span className="font-semibold text-slate-700 text-xs">{reply.author}</span>
@@ -289,7 +289,7 @@ export default function CommentSection({ postId, initialComments, isAdmin = fals
       </div>
 
       {/* 신규 댓글 등록 폼 */}
-      <form onSubmit={handleSubmit} className="glass-panel p-6 rounded-3xl border-slate-200 bg-white space-y-4">
+      <form onSubmit={handleSubmit} className="glass-panel -mx-4 sm:mx-0 p-6 rounded-none sm:rounded-3xl border-x-0 sm:border-x border-slate-200 bg-white space-y-4">
         <h4 className="text-sm font-semibold text-slate-800">새 댓글 쓰기</h4>
         <div className="grid grid-cols-2 gap-4">
           <input type="text" placeholder="닉네임" value={author} onChange={(e) => setAuthor(e.target.value)} className="w-full bg-white border border-gray-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-violet-500" />
