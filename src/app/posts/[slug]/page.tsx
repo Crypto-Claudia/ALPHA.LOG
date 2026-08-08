@@ -177,7 +177,7 @@ export default async function PostDetailPage(props: Params) {
       </div>
 
       {/* Comment Section (Client Component) */}
-      <div className="pt-8">
+      <div>
         <CommentSection postId={post.id} initialComments={post.comments} isAdmin={isAdmin} />
       </div>
     </article>

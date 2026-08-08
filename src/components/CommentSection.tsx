@@ -197,7 +197,7 @@ export default function CommentSection({ postId, initialComments, isAdmin = fals
   }, 0);
 
   return (
-    <div className="mt-12 space-y-8">
+    <div className="mt-4 space-y-6">
       <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-4">
         <MessageSquare size={20} className="text-violet-600" /> 댓글 ({totalActiveComments})
       </h3>
