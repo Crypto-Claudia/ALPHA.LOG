@@ -96,7 +96,7 @@ export default async function RootLayout({
         {/* Footer */}
         <footer className="border-t border-[rgba(0,0,0,0.04)] py-6 mt-12 bg-black/[0.02]">
           <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} Alpha.Log. Powered by Next.js & Prisma.
+            &copy; {new Date().getFullYear()} Alpha.Log. 생각과 자산이 복리로 쌓이는 기록 보관소.
           </div>
         </footer>
       </body>
