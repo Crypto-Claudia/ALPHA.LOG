@@ -205,9 +205,11 @@ body {
 }
 
 /* 엔터 개행(p) 시 추가로 벌어지던 마진을 없애 네이버 블로그처럼 균일한 줄간격 매핑 */
+/* 빈 문단(<p></p> 또는 <p><br></p>)이 높이 0px로 허물어져 여러 번 띄운 줄바꿈이 무시되는 현상 방어 */
 .tiptap-content p {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
+  min-height: 1.8em;
 }
 
 /* 수동으로 글씨 크기를 조정한 텍스트 영역(span)의 줄간격 비례 최적화 */
