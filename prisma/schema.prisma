@@ -1,0 +1,89 @@
+datasource db {
+  provider = "mysql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  slug      String     @unique
+  sortOrder Int        @default(0)
+  posts     Post[]
+
+  // 계층형 카테고리 지원
+  parentId  Int?
+  parent    Category?  @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Category[] @relation("CategoryToCategory")
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  slug  String @unique
+  posts Post[] @relation("PostTags")
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  title      String
+  slug       String   @unique
+  summary    String?  @db.VarChar(500) // 목록 카드용 요약문
+  content    String   @db.LongText // WYSIWYG 에디터 본문 (HTML/JSON)
+  thumbnail  String?  @db.VarChar(512)
+  published  Boolean  @default(false)
+  isDeleted  Boolean  @default(false) // 소프트 딜리트 여부
+  viewCount  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags       Tag[]     @relation("PostTags")
+  comments   Comment[]
+
+  @@index([published, createdAt]) // 공개글 최신순 정렬 최적화
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  author    String
+  password  String // 비회원 암호화 비밀번호
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  isDeleted Boolean  @default(false) // 소프트 딜리트 여부
+
+  postId Int
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  parentId Int?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  @@index([postId])
+}
+
+model ActivityLog {
+  id          Int      @id @default(autoincrement())
+  action      String   // e.g. "CREATE_POST", "UPDATE_POST", "DELETE_POST", "CREATE_COMMENT", "DELETE_COMMENT"
+  targetId    String   // 대상 포스트 슬러그 또는 댓글 ID
+  targetTitle String?  @db.VarChar(512) // 대상 포스트 제목 혹은 댓글 작성자 이름 등
+  ip          String?
+  userAgent   String?  @db.VarChar(512)
+  createdAt   DateTime @default(now())
+
+  @@index([action, createdAt])
+}
+
+model VisitLog {
+  id        Int      @id @default(autoincrement())
+  path      String   @db.VarChar(512) // 접근 경로 (예: "/" 또는 "/posts/slug")
+  ip        String?
+  userAgent String?  @db.VarChar(512)
+  createdAt DateTime @default(now())
+
+  @@index([path, createdAt])
+}
+
