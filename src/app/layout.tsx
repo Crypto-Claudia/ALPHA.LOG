@@ -57,7 +57,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         {/* Navigation Bar */}
-        <header className="sticky top-0 z-50 w-full glass-panel border-b border-[rgba(0,0,0,0.04)]">
+        <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-[0_4px_6px_-1px_rgba(15,23,42,0.05),0_2px_4px_-2px_rgba(15,23,42,0.05)]">
           <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
