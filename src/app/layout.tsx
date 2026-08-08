@@ -4,6 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 import { verifySessionCookie } from "@/lib/auth";
 import AdminLogoutButton from "@/components/AdminLogoutButton";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,7 +56,23 @@ export default async function RootLayout({
         <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
         <meta name="theme-color" content="#ffffff" />
       </head>
-      <body className="min-h-full flex flex-col">
+       <body className="min-h-full flex flex-col">
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
         {/* Navigation Bar */}
         <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-[0_4px_6px_-1px_rgba(15,23,42,0.05),0_2px_4px_-2px_rgba(15,23,42,0.05)]">
           <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
