@@ -5,6 +5,7 @@ import { verifySessionCookie } from "@/lib/auth";
 import { logVisit } from "@/lib/logger";
 import CommentSection from "@/components/CommentSection";
 import PostAdminActions from "@/components/PostAdminActions";
+import ImageLightbox from "@/components/ImageLightbox";
 import { Calendar, Eye, EyeOff, Folder, Tag as TagIcon, ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -180,6 +181,9 @@ export default async function PostDetailPage(props: Params) {
       <div>
         <CommentSection postId={post.id} initialComments={post.comments} isAdmin={isAdmin} />
       </div>
+
+      {/* 이미지 라이트박스 뷰어 */}
+      <ImageLightbox />
     </article>
   );
 }

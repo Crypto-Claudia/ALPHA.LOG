@@ -115,6 +115,12 @@ body {
   height: auto;
   border-radius: 0.5rem;
   margin: 1.5rem 0;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+.tiptap-content img:hover {
+  opacity: 0.95;
+  transform: scale(1.005);
 }
 .tiptap-content hr {
   border: 0;
