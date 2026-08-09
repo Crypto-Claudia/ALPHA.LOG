@@ -14,10 +14,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. 파일 형식 검증 (이미지만 허용)
-    if (!file.type.startsWith("image/")) {
+    // 1. 파일 형식 검증 (이미지만 허용 - MIME 타입 또는 확장자 기반)
+    const allowedExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"];
+    const fileExtension = path.extname(file.name).toLowerCase();
+    
+    const isImageMime = file.type.startsWith("image/");
+    const isImageExt = allowedExtensions.includes(fileExtension);
+
+    if (!isImageMime && !isImageExt) {
       return NextResponse.json(
-        { error: "이미지 파일(.png, .jpg, .gif 등)만 업로드할 수 있습니다." },
+        { error: "이미지 파일(.png, .jpg, .gif, .webp 등)만 업로드할 수 있습니다." },
         { status: 400 }
       );
     }
