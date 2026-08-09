@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Editor from "@/components/Editor";
 import { FolderPlus, Tag, Link2, Plus, ArrowLeft, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
+import { showToast } from "@/components/Toast";
 
 interface Category {
   id: number;
@@ -38,6 +39,45 @@ export default function WritePage() {
   const [sortOrders, setSortOrders] = useState<{ [id: number]: number }>({});
 
   const [loading, setLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const isDirty = (title || slug || summary || thumbnail || content || tagsInput || categoryId) && !isSubmitted;
+
+  // 브라우저 탭 닫기/새로고침 시 경고
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  // Next.js 클라이언트 사이드 링크 클릭 이동 방지
+  useEffect(() => {
+    const handleAnchorClick = (e: MouseEvent) => {
+      if (!isDirty) return;
+
+      const target = e.target as HTMLElement;
+      const anchor = target.closest("a");
+      
+      if (anchor) {
+        const href = anchor.getAttribute("href");
+        if (href && !href.startsWith("#") && !href.startsWith("javascript:")) {
+          const confirmLeave = window.confirm("작성 중인 내용이 저장되지 않았습니다. 정말 페이지를 벗어나시겠습니까?");
+          if (!confirmLeave) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }
+      }
+    };
+
+    document.addEventListener("click", handleAnchorClick, true);
+    return () => document.removeEventListener("click", handleAnchorClick, true);
+  }, [isDirty]);
 
   // 카테고리 계층 트리 목록 패치
   const fetchCategories = async () => {
@@ -80,7 +120,7 @@ export default function WritePage() {
   // 새 카테고리 등록
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCatName || !newCatSlug) return alert("카테고리명과 슬러그를 모두 입력해주세요.");
+    if (!newCatName || !newCatSlug) return showToast("카테고리명과 슬러그를 모두 입력해주세요.", "error");
 
     try {
       const res = await fetch("/api/categories", {
@@ -96,7 +136,7 @@ export default function WritePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      alert("카테고리가 성공적으로 추가되었습니다.");
+      showToast("카테고리가 성공적으로 추가되었습니다.", "success");
       setNewCatName("");
       setNewCatSlug("");
       setNewCatParentId("");
@@ -106,7 +146,7 @@ export default function WritePage() {
       await fetchCategories();
       setCategoryId(data.id.toString());
     } catch (err: any) {
-      alert(err.message || "카테고리 추가 중 오류가 발생했습니다.");
+      showToast(err.message || "카테고리 추가 중 오류가 발생했습니다.", "error");
     }
   };
 
@@ -127,11 +167,11 @@ export default function WritePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      alert("카테고리 정렬 순서가 저장되었습니다!");
+      showToast("카테고리 정렬 순서가 저장되었습니다!", "success");
       await fetchCategories();
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "순서 저장 중 오류가 발생했습니다.");
+      showToast(err.message || "순서 저장 중 오류가 발생했습니다.", "error");
     } finally {
       setLoading(false);
     }
@@ -139,8 +179,8 @@ export default function WritePage() {
 
   // 글 저장
   const handleSave = async () => {
-    if (!title || !content) return alert("제목과 본문은 필수 입력 사항입니다.");
-    if (!categoryId) return alert("카테고리를 선택해 주세요.");
+    if (!title || !content) return showToast("제목과 본문은 필수 입력 사항입니다.", "error");
+    if (!categoryId) return showToast("카테고리를 선택해 주세요.", "error");
 
     setLoading(true);
     
@@ -168,11 +208,14 @@ export default function WritePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      alert("포스트가 저장되었습니다!");
-      router.push("/");
-      router.refresh();
+      setIsSubmitted(true);
+      showToast("포스트가 성공적으로 저장되었습니다!", "success");
+      setTimeout(() => {
+        router.push("/");
+        router.refresh();
+      }, 1000);
     } catch (err: any) {
-      alert(err.message || "게시글 작성 중 오류가 발생했습니다.");
+      showToast(err.message || "게시글 작성 중 오류가 발생했습니다.", "error");
     } finally {
       setLoading(false);
     }

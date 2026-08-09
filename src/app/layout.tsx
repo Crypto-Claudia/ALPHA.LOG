@@ -4,6 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 import { verifySessionCookie } from "@/lib/auth";
 import AdminLogoutButton from "@/components/AdminLogoutButton";
+import ToastContainer from "@/components/Toast";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -116,6 +117,9 @@ export default async function RootLayout({
             &copy; {new Date().getFullYear()} Alpha.Log. 생각과 자산이 복리로 쌓이는 기록 보관소.
           </div>
         </footer>
+
+        {/* Global Toasts */}
+        <ToastContainer />
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Trash2, Edit } from "lucide-react";
+import { showToast } from "@/components/Toast";
 
 interface PostAdminActionsProps {
   slug: string;
@@ -29,10 +30,10 @@ export default function PostAdminActions({ slug, published }: PostAdminActionsPr
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      alert(`포스트가 성공적으로 ${!published ? "공개" : "비공개"} 상태로 전환되었습니다.`);
+      showToast(`포스트가 성공적으로 ${!published ? "공개" : "비공개"} 상태로 전환되었습니다.`, "success");
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "상태 변경 중 오류가 발생했습니다.");
+      showToast(err.message || "상태 변경 중 오류가 발생했습니다.", "error");
     } finally {
       setLoading(false);
     }
@@ -53,11 +54,11 @@ export default function PostAdminActions({ slug, published }: PostAdminActionsPr
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      alert("포스트가 삭제되었습니다.");
+      showToast("포스트가 성공적으로 삭제되었습니다.", "success");
       router.push("/");
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "포스트 삭제 중 오류가 발생했습니다.");
+      showToast(err.message || "포스트 삭제 중 오류가 발생했습니다.", "error");
     } finally {
       setLoading(false);
     }
