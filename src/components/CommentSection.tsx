@@ -251,7 +251,7 @@ export default function CommentSection({ postId, initialComments, isAdmin = fals
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <input type="text" placeholder="닉네임" value={replyAuthor} onChange={(e) => setReplyAuthor(e.target.value)} className="w-full bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-violet-500" />
-                        <input type="password" placeholder="비밀번호" value={replyPassword} onChange={(e) => setReplyPassword(e.target.value)} className="w-full bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-violet-500" />
+                        <input type="password" placeholder="비밀번호" value={replyPassword} onChange={(e) => setReplyPassword(e.target.value)} className="w-full bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-violet-500" autoComplete="new-password" />
                       </div>
                       <div className="relative">
                         <textarea placeholder="답글 내용을 입력해 주세요..." value={replyContent} onChange={(e) => setReplyContent(e.target.value)} rows={2} className="w-full bg-white border border-gray-200 p-3 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-violet-500 resize-none pr-10" />
@@ -293,7 +293,7 @@ export default function CommentSection({ postId, initialComments, isAdmin = fals
         <h4 className="text-sm font-semibold text-slate-800">새 댓글 쓰기</h4>
         <div className="grid grid-cols-2 gap-4">
           <input type="text" placeholder="닉네임" value={author} onChange={(e) => setAuthor(e.target.value)} className="w-full bg-white border border-gray-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-violet-500" />
-          <input type="password" placeholder="삭제 비밀번호" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white border border-gray-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-violet-500" />
+          <input type="password" placeholder="삭제 비밀번호" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white border border-gray-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-violet-500" autoComplete="new-password" />
         </div>
         <div className="relative">
           <textarea placeholder="댓글 내용을 남겨주세요..." value={content} onChange={(e) => setContent(e.target.value)} rows={3} className="w-full bg-white border border-gray-200 p-4 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-violet-500 resize-none pr-12" />
@@ -310,7 +310,7 @@ export default function CommentSection({ postId, initialComments, isAdmin = fals
             <h4 className="text-md font-bold text-slate-800">댓글 삭제 비밀번호 확인</h4>
             <p className="text-xs text-slate-500">이 댓글을 삭제하려면 작성 시 입력한 비밀번호를 입력해 주세요.</p>
             <form onSubmit={handleDelete} className="space-y-4">
-              <input type="password" placeholder="비밀번호" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} className="w-full bg-white border border-gray-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-rose-500" autoFocus />
+              <input type="password" placeholder="비밀번호" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} className="w-full bg-white border border-gray-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-rose-500" autoFocus autoComplete="new-password" />
               <div className="flex gap-3 justify-end text-xs">
                 <button type="button" onClick={() => { setDeleteId(null); setDeletePassword(""); }} className="px-4 py-2 rounded-xl text-slate-500 hover:text-slate-800 cursor-pointer">
                   취소
