@@ -32,6 +32,24 @@ export default function ImageLightbox() {
     };
   }, []);
 
+  // 본문 내의 모든 table 요소를 scrollable div(.table-wrapper)로 감싸는 헬퍼 스크립트
+  useEffect(() => {
+    const container = document.querySelector(".tiptap-content");
+    if (!container) return;
+
+    const tables = container.querySelectorAll("table");
+    tables.forEach((table) => {
+      // 이미 래핑된 경우 제외
+      if (table.parentElement?.classList.contains("table-wrapper")) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "table-wrapper";
+      
+      table.parentNode?.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    });
+  }, []);
+
   // 키보드 네비게이션 및 스크롤 고정
   useEffect(() => {
     if (currentIndex === -1) return;

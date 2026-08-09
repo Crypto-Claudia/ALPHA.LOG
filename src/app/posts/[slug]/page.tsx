@@ -147,7 +147,7 @@ export default async function PostDetailPage(props: Params) {
                 <Eye size={14} className="text-cyan-600" /> 조회 {post.viewCount}회
               </span>
             </div>
-            
+
             {/* 어드민 조작 버튼 이식 */}
             {isAdmin && <PostAdminActions slug={post.slug} published={post.published} />}
           </div>
@@ -163,7 +163,7 @@ export default async function PostDetailPage(props: Params) {
         {/* 3. Body Content & Tags Area */}
         <div className="p-5 sm:p-10 pt-6 sm:pt-8 space-y-6">
           <div className="tiptap-content text-slate-800" dangerouslySetInnerHTML={{ __html: post.content }} />
-          
+
           {/* Tags Block */}
           {post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-6 border-t border-slate-100">
