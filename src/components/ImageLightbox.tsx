@@ -39,6 +39,15 @@ export default function ImageLightbox() {
 
     const tables = container.querySelectorAll("table");
     tables.forEach((table) => {
+      // 첫 번째 행의 셀(열) 개수 검사
+      const firstRow = table.querySelector("tr");
+      const cellCount = firstRow ? firstRow.querySelectorAll("th, td").length : 0;
+      
+      if (cellCount <= 1) {
+        // 1열짜리 표(1x1 등)는 모바일에서 가로 스크롤 없이 100% 핏되게 표시되도록 마크업 클래스 주입
+        table.classList.add("single-column");
+      }
+
       // 이미 래핑된 경우 제외
       if (table.parentElement?.classList.contains("table-wrapper")) return;
 

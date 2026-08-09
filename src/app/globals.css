@@ -369,7 +369,9 @@ body {
     display: table !important;
     table-layout: fixed !important;
     width: 100% !important;
-    min-width: 720px !important;
-    /* 모바일에서 고유 열 너비 비율을 유지하기 위해 최소 가로폭 강제 */
+    min-width: 720px !important; /* 모바일에서 고유 열 너비 비율을 유지하기 위해 최소 가로폭 강제 */
+  }
+  .tiptap-content table.single-column {
+    min-width: 100% !important; /* 1열짜리 표(1x1 등)는 가로 스크롤 없이 화면 너비에 딱 피트되게 함 */
   }
 }
