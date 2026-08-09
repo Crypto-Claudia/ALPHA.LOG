@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://alpha-log.xyz"),
   title: "ALPHA.LOG - 알파의 투자 아카이브",
-  description: "구글 애드센스 탑재와 SEO 최적화가 완비된 나만의 기술 블로그입니다.",
+  description: "블록체인 및 가상자산 투자 아카이브. 크립토 시장 통찰과 온체인 데이터 가치 분석, 복리 성장을 기록하는 ALPHA.LOG.",
 };
 
 export default async function RootLayout({

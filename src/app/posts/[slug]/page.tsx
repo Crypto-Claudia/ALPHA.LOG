@@ -31,7 +31,7 @@ export async function generateMetadata(props: Params): Promise<Metadata> {
 
   return {
     title: `${post.title} - ALPHA.LOG`,
-    description: post.summary || "구글 애드센스 탑재와 SEO 최적화가 완비된 나만의 기술 블로그입니다.",
+    description: post.summary || "블록체인 및 가상자산 투자 아카이브. 크립토 시장 통찰과 온체인 데이터 가치 분석, 복리 성장을 기록하는 ALPHA.LOG.",
     openGraph: {
       title: post.title,
       description: post.summary || undefined,
