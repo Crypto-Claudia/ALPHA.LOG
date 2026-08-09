@@ -194,7 +194,7 @@ export default async function Home(props: PageProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {posts.map((post: any) => (
-              <article key={post.id} className="glass-panel rounded-3xl overflow-hidden hover:scale-[1.01] hover:shadow-lg transition-all duration-300 flex flex-col group border-slate-200">
+              <article key={post.id} className="glass-panel rounded-3xl overflow-hidden hover:scale-[1.01] hover:shadow-lg transition-all duration-300 flex flex-col group border-slate-200 relative">
                 {/* Card Thumbnail */}
                 {post.thumbnail ? (
                   <div className="w-full aspect-[1200/630] overflow-hidden relative bg-slate-100 border-b border-slate-200">
@@ -212,7 +212,7 @@ export default async function Home(props: PageProps) {
                     {/* Category Label & Published Badge */}
                     <div className="flex items-center gap-2 mb-3">
                       {post.category && (
-                        <Link href={`/?category=${post.category.slug}`} className="inline-flex items-center gap-1 text-[11px] font-bold text-cyan-750 bg-cyan-50 border border-cyan-100 px-2 py-0.5 rounded-md hover:bg-cyan-100 transition-colors">
+                        <Link href={`/?category=${post.category.slug}`} className="relative z-20 inline-flex items-center gap-1 text-[11px] font-bold text-cyan-750 bg-cyan-50 border border-cyan-100 px-2 py-0.5 rounded-md hover:bg-cyan-100 transition-colors">
                           <Folder size={10} /> 
                           <span>
                             {post.category.parent ? `${post.category.parent.name} > ` : ""}
@@ -229,7 +229,7 @@ export default async function Home(props: PageProps) {
 
                     {/* Title */}
                     <h2 className="text-lg font-bold text-slate-900 mb-2 line-clamp-2 group-hover:text-violet-700 transition-colors post-card-title">
-                      <Link href={`/posts/${post.slug}`}>{post.title}</Link>
+                      <Link href={`/posts/${post.slug}`} className="after:absolute after:inset-0 after:z-10">{post.title}</Link>
                     </h2>
 
                     {/* Summary */}

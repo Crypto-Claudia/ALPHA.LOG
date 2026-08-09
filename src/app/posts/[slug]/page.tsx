@@ -184,6 +184,14 @@ export default async function PostDetailPage(props: Params) {
 
       {/* 이미지 라이트박스 뷰어 */}
       <ImageLightbox />
+
+      {/* 우측 하단 플로팅 관리자 액션 바 (어느 위치에서든 즉시 수정/공개 관리 가능) */}
+      {isAdmin && (
+        <div className="fixed bottom-6 right-6 z-40 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl p-2.5 px-3.5 flex items-center gap-2.5 hover:bg-white transition-all">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-r border-slate-200 pr-2 mr-0.5">Admin</span>
+          <PostAdminActions slug={post.slug} published={post.published} />
+        </div>
+      )}
     </article>
   );
 }

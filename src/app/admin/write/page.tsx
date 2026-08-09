@@ -478,6 +478,16 @@ export default function WritePage() {
           </label>
         </div>
       </div>
+      {/* 우측 하단 플로팅 글 발행 버튼 (스크롤에 상관없이 항시 노출) */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          className="px-6 py-3.5 rounded-full bg-violet-600 hover:bg-violet-500 font-bold text-sm text-white disabled:opacity-50 transition-all shadow-2xl shadow-violet-900/20 active:scale-95 hover:scale-105 cursor-pointer flex items-center gap-2"
+        >
+          {loading ? "저장 중..." : "블로그 글 발행"}
+        </button>
+      </div>
     </div>
   );
 }
