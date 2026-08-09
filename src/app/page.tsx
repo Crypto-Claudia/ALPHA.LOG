@@ -3,12 +3,57 @@ import prisma from "@/lib/prisma";
 import { Calendar, Eye, MessageSquare, Folder, Tag as TagIcon, ArrowRight } from "lucide-react";
 import { verifySessionCookie } from "@/lib/auth";
 import { logVisit } from "@/lib/logger";
+import type { Metadata } from "next";
 
 interface PageProps {
   searchParams: Promise<{
     category?: string;
     tag?: string;
   }>;
+}
+
+// category / tag 필터링 시 구글 검색 엔진에 고유 타이틀이 잡히도록 동적 메타데이터 생성
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const categorySlug = searchParams.category;
+  const tagSlug = searchParams.tag;
+
+  if (categorySlug) {
+    try {
+      const category = await prisma.category.findUnique({
+        where: { slug: categorySlug },
+        select: { name: true },
+      });
+      if (category) {
+        return {
+          title: `${category.name} - ALPHA.LOG`,
+          description: `${category.name} 카테고리의 가상자산 및 블록체인 투자 분석 글 목록입니다.`,
+        };
+      }
+    } catch (e) {
+      console.error("Home generateMetadata error:", e);
+    }
+  }
+
+  if (tagSlug) {
+    try {
+      const tag = await prisma.tag.findUnique({
+        where: { slug: tagSlug },
+        select: { name: true },
+      });
+      if (tag) {
+        return {
+          title: `#${tag.name} 태그 글 목록 - ALPHA.LOG`,
+          description: `#${tag.name} 태그 관련 온체인 데이터 및 가치 투자 기록들을 모아봅니다.`,
+        };
+      }
+    } catch (e) {
+      console.error("Home generateMetadata error:", e);
+    }
+  }
+
+  // 기본 홈 화면은 layout.tsx의 기본 메타데이터(ALPHA.LOG - 알파의 투자 아카이브)를 따름
+  return {};
 }
 
 export default async function Home(props: PageProps) {
