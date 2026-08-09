@@ -254,3 +254,18 @@ body {
   font-weight: 500;
   line-height: 1.5;
 }
+
+/* 모바일 반응형 테이블 지원: 테이블이 부모 너비를 넘쳐도 극단적으로 찌그러지지 않고 가로 스크롤 가능하게 함 */
+@media (max-width: 768px) {
+  .tiptap-content table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+  }
+  .tiptap-content table th,
+  .tiptap-content table td {
+    min-width: 120px !important; /* 열이 세로로 한 글자씩 쪼개지는 현상 방지 */
+  }
+}
