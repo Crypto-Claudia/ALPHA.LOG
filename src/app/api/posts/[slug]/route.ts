@@ -103,29 +103,30 @@ export async function PATCH(request: Request, props: Params) {
       }
     }
 
-    // 태그 업데이트 구성
-    const tagConnectOrCreate = tags && Array.isArray(tags)
-      ? tags.map((tagName: string) => {
-          const trimmed = tagName.trim();
-          return {
-            where: { name: trimmed },
-            create: { name: trimmed, slug: slugify(trimmed) },
-          };
-        })
-      : [];
-
     const updateData: any = {
       title: title ?? post.title,
       slug: finalSlug,
       summary: summary !== undefined ? summary : post.summary,
       content: content ?? post.content,
       thumbnail: thumbnail !== undefined ? thumbnail : post.thumbnail,
-      published: published ?? post.published,
-      tags: {
+      published: published !== undefined ? published : post.published,
+    };
+
+    // 태그 정보가 명시적으로 전달되었을 때만 관계 업데이트 수행
+    if (tags !== undefined && Array.isArray(tags)) {
+      const tagConnectOrCreate = tags.map((tagName: string) => {
+        const trimmed = tagName.trim();
+        return {
+          where: { name: trimmed },
+          create: { name: trimmed, slug: slugify(trimmed) },
+        };
+      });
+
+      updateData.tags = {
         set: [], // 기존 관계 끊기
         connectOrCreate: tagConnectOrCreate, // 새 관계 형성
-      },
-    };
+      };
+    }
 
     if (categoryId !== undefined) {
       if (categoryId === null) {
