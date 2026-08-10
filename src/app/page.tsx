@@ -45,6 +45,10 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
         return {
           title: `#${tag.name} 태그 글 목록 - ALPHA.LOG`,
           description: `#${tag.name} 태그 관련 온체인 데이터 및 가치 투자 기록들을 모아봅니다.`,
+          robots: {
+            index: false,
+            follow: true,
+          },
         };
       }
     } catch (e) {
