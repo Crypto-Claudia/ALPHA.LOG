@@ -19,7 +19,7 @@ export const CustomImage = Image.extend({
         },
         renderHTML: (attributes) => {
           const align = attributes.align || "center";
-          const margin = align === "left" ? "0 auto 0 0" : align === "right" ? "0 0 0 auto" : "0 auto";
+          const margin = align === "left" ? "1.5rem auto 1.5rem 0" : align === "right" ? "1.5rem 0 1.5rem auto" : "1.5rem auto";
           return {
             "data-align": align,
             style: `display: block; margin: ${margin};`,
@@ -100,7 +100,7 @@ export const CustomImage = Image.extend({
 
   renderHTML({ HTMLAttributes }) {
     const align = HTMLAttributes["data-align"] || "center";
-    const margin = align === "left" ? "0 auto 0 0" : align === "right" ? "0 0 0 auto" : "0 auto";
+    const margin = align === "left" ? "1.5rem auto 1.5rem 0" : align === "right" ? "1.5rem 0 1.5rem auto" : "1.5rem auto";
     const captionText = HTMLAttributes["data-caption"] || "";
     const width = HTMLAttributes["data-width"] || "100%";
 
