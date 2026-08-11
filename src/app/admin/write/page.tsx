@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Editor from "@/components/Editor";
-import { FolderPlus, Tag, Link2, Plus, ArrowLeft, ArrowUpDown } from "lucide-react";
+import { FolderPlus, Tag, Link2, Plus, ArrowLeft, ArrowUpDown, Calendar, Eye, Folder } from "lucide-react";
 import Link from "next/link";
 import { showToast } from "@/components/Toast";
+import ImageLightbox from "@/components/ImageLightbox";
 
 interface Category {
   id: number;
@@ -40,6 +41,7 @@ export default function WritePage() {
 
   const [loading, setLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   const isDirty = (title || slug || summary || thumbnail || content || tagsInput || categoryId) && !isSubmitted;
 
@@ -225,9 +227,37 @@ export default function WritePage() {
     <div className="max-w-[966px] mx-auto space-y-6">
       {/* Top action header */}
       <div className="flex items-center justify-between pb-4 border-b border-gray-200">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors">
-          <ArrowLeft size={14} /> 목록으로
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors">
+            <ArrowLeft size={14} /> 목록으로
+          </Link>
+          <div className="h-4 w-[1px] bg-gray-200" />
+          {/* 에디터 / 미리보기 전환 탭 */}
+          <div className="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl text-xs">
+            <button
+              type="button"
+              onClick={() => setIsPreviewMode(false)}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                !isPreviewMode 
+                  ? "bg-white text-slate-900 shadow-sm" 
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              에디터 작성
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPreviewMode(true)}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                isPreviewMode 
+                  ? "bg-white text-slate-900 shadow-sm" 
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              실제 미리보기
+            </button>
+          </div>
+        </div>
         <button
           onClick={handleSave}
           disabled={loading}
@@ -237,8 +267,9 @@ export default function WritePage() {
         </button>
       </div>
 
-      {/* Main write form container */}
-      <div className="glass-panel p-6 sm:p-8 rounded-3xl border-gray-200 space-y-6">
+      {/* Main write form container or Preview Container */}
+      {!isPreviewMode ? (
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border-gray-200 space-y-6">
         {/* Title */}
         <div>
           <label className="block text-xs font-semibold text-slate-500 mb-2">제목</label>
@@ -520,7 +551,85 @@ export default function WritePage() {
             글 저장 시 즉시 공개(발행) 상태로 설정
           </label>
         </div>
-      </div>
+        </div>
+      ) : (
+        <article className="max-w-[966px] mx-auto space-y-8 animate-in fade-in duration-200">
+          {/* Single Main Card Container */}
+          <div className="glass-panel -mx-4 sm:mx-0 rounded-none sm:rounded-3xl border-x-0 sm:border-x border-slate-200 overflow-hidden bg-white flex flex-col shadow-sm">
+            {/* 1. Header Info (Title and Metadata) */}
+            <div className="p-5 sm:p-10 pb-6 border-b border-slate-100 space-y-4">
+              {/* Category Label */}
+              {(() => {
+                const findCategoryName = (cats: Category[]): string | null => {
+                  for (const cat of cats) {
+                    if (cat.id.toString() === categoryId) return cat.name;
+                    if (cat.children) {
+                      const childName = findCategoryName(cat.children);
+                      if (childName) return childName;
+                    }
+                  }
+                  return null;
+                };
+                const catName = findCategoryName(categories);
+                return catName ? (
+                  <div>
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-100 px-3 py-1 rounded-md">
+                      <Folder size={12} className="text-cyan-600" /> {catName}
+                    </span>
+                  </div>
+                ) : null;
+              })()}
+
+              <h1 className="text-[20px] sm:text-[32px] font-normal text-slate-900 leading-tight post-detail-title">
+                {title || "제목 없음"}
+              </h1>
+
+              {/* Post Metadata */}
+              <div className="pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center text-xs text-slate-500 gap-4">
+                <div className="flex flex-wrap gap-4 items-center">
+                  <span className="flex items-center gap-1">
+                    <Calendar size={14} className="text-violet-600" /> {new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })} (임시 미리보기)
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye size={14} className="text-cyan-600" /> 조회 0회
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Main Thumbnail */}
+            {thumbnail && (
+              <div className="w-full aspect-[1200/630] overflow-hidden border-b border-slate-100 bg-slate-50 relative">
+                <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
+              </div>
+            )}
+
+            {/* 3. Body Content & Tags Area */}
+            <div className="p-5 sm:p-10 pt-6 sm:pt-8 space-y-6">
+              <div className="tiptap-content text-slate-800" dangerouslySetInnerHTML={{ __html: content || "<p class='text-slate-400 italic'>입력된 본문 내용이 없습니다.</p>" }} />
+
+              {/* Tags Block */}
+              {(() => {
+                const parsedTags = tagsInput
+                  .split(",")
+                  .map((t) => t.trim())
+                  .filter((t) => t.length > 0);
+                return parsedTags.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 pt-6 border-t border-slate-100">
+                    {parsedTags.map((tag, idx) => (
+                      <span key={idx} className="inline-flex items-center text-xs px-3 py-1 rounded-full border border-slate-200 text-slate-600">
+                        <Tag size={12} className="mr-1 text-cyan-600" /> {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
+            </div>
+          </div>
+          {/* Lightbox Trigger Hook */}
+          <ImageLightbox />
+        </article>
+      )}
       {/* 우측 하단 플로팅 글 발행 버튼 (스크롤에 상관없이 항시 노출) */}
       <div className="fixed bottom-6 right-6 z-40">
         <button

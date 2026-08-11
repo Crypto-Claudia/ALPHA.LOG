@@ -8,55 +8,73 @@ export default function ImageLightbox() {
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
 
   useEffect(() => {
-    // tiptap-content 영역의 이미지 클릭 이벤트 위임
-    const container = document.querySelector(".tiptap-content");
-    if (!container) return;
-
-    const handleImageClick = (e: Event) => {
+    // tiptap-content 영역의 이미지 클릭 이벤트 위임 (동적 렌더링에 안전하도록 document 레벨에서 감지)
+    const handleImageClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target.tagName === "IMG") {
-        const imgElements = Array.from(container.querySelectorAll("img"));
-        const imgSrcs = imgElements.map((img) => img.src);
-        const index = imgElements.indexOf(target as HTMLImageElement);
-        
-        if (index !== -1) {
-          setImages(imgSrcs);
-          setCurrentIndex(index);
+        const container = target.closest(".tiptap-content");
+        if (container) {
+          const imgElements = Array.from(container.querySelectorAll("img"));
+          const imgSrcs = imgElements.map((img) => img.src);
+          const index = imgElements.indexOf(target as HTMLImageElement);
+          
+          if (index !== -1) {
+            setImages(imgSrcs);
+            setCurrentIndex(index);
+          }
         }
       }
     };
 
-    container.addEventListener("click", handleImageClick);
+    document.addEventListener("click", handleImageClick);
     return () => {
-      container.removeEventListener("click", handleImageClick);
+      document.removeEventListener("click", handleImageClick);
     };
   }, []);
 
-  // 본문 내의 모든 table 요소를 scrollable div(.table-wrapper)로 감싸는 헬퍼 스크립트
+  // 본문 내의 모든 table 요소를 scrollable div(.table-wrapper)로 감싸는 헬퍼 스크립트 (미리보기 모드 전환 대응용 MutationObserver 적용)
   useEffect(() => {
-    const container = document.querySelector(".tiptap-content");
-    if (!container) return;
+    const wrapTables = (container: Element) => {
+      const tables = container.querySelectorAll("table");
+      tables.forEach((table) => {
+        // 첫 번째 행의 셀(열) 개수 검사
+        const firstRow = table.querySelector("tr");
+        const cellCount = firstRow ? firstRow.querySelectorAll("th, td").length : 0;
+        
+        if (cellCount <= 1) {
+          // 1열짜리 표(1x1 등)는 모바일에서 가로 스크롤 없이 100% 핏되게 표시되도록 마크업 클래스 주입
+          table.classList.add("single-column");
+        }
 
-    const tables = container.querySelectorAll("table");
-    tables.forEach((table) => {
-      // 첫 번째 행의 셀(열) 개수 검사
-      const firstRow = table.querySelector("tr");
-      const cellCount = firstRow ? firstRow.querySelectorAll("th, td").length : 0;
-      
-      if (cellCount <= 1) {
-        // 1열짜리 표(1x1 등)는 모바일에서 가로 스크롤 없이 100% 핏되게 표시되도록 마크업 클래스 주입
-        table.classList.add("single-column");
+        // 이미 래핑된 경우 제외
+        if (table.parentElement?.classList.contains("table-wrapper")) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-wrapper";
+        
+        table.parentNode?.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+    };
+
+    // 초기 실행
+    const initialContainer = document.querySelector(".tiptap-content");
+    if (initialContainer) {
+      wrapTables(initialContainer);
+    }
+
+    // DOM 변화 감지를 위해 MutationObserver 수립 (미리보기 모드 활성화 시점 등 동적 대응)
+    const observer = new MutationObserver(() => {
+      const container = document.querySelector(".tiptap-content");
+      if (container) {
+        wrapTables(container);
       }
-
-      // 이미 래핑된 경우 제외
-      if (table.parentElement?.classList.contains("table-wrapper")) return;
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "table-wrapper";
-      
-      table.parentNode?.insertBefore(wrapper, table);
-      wrapper.appendChild(table);
     });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   // 키보드 네비게이션 및 스크롤 고정
