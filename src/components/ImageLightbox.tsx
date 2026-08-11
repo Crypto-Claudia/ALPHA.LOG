@@ -17,7 +17,7 @@ export default function ImageLightbox() {
           const imgElements = Array.from(container.querySelectorAll("img"));
           const imgSrcs = imgElements.map((img) => img.src);
           const index = imgElements.indexOf(target as HTMLImageElement);
-          
+
           if (index !== -1) {
             setImages(imgSrcs);
             setCurrentIndex(index);
@@ -40,7 +40,7 @@ export default function ImageLightbox() {
         // 첫 번째 행의 셀(열) 개수 검사
         const firstRow = table.querySelector("tr");
         const cellCount = firstRow ? firstRow.querySelectorAll("th, td").length : 0;
-        
+
         if (cellCount <= 1) {
           // 1열짜리 표(1x1 등)는 모바일에서 가로 스크롤 없이 100% 핏되게 표시되도록 마크업 클래스 주입
           table.classList.add("single-column");
@@ -51,7 +51,7 @@ export default function ImageLightbox() {
 
         const wrapper = document.createElement("div");
         wrapper.className = "table-wrapper";
-        
+
         table.parentNode?.insertBefore(wrapper, table);
         wrapper.appendChild(table);
       });
@@ -112,7 +112,7 @@ export default function ImageLightbox() {
   if (currentIndex === -1 || images.length === 0) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-between p-4 select-none"
       onClick={() => setCurrentIndex(-1)}
     >

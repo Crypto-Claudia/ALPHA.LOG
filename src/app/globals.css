@@ -101,7 +101,6 @@ body {
 .tiptap-content blockquote {
   border-left: 4px solid var(--primary);
   padding-left: 1rem;
-  font-style: italic;
   color: #475569;
   /* slate-600 */
   margin: 1.5rem 0;
@@ -160,7 +159,7 @@ body {
 .tiptap-content hr {
   border: 0;
   border-top: 1px solid var(--card-border);
-  margin: 2rem 0;
+  margin: 3rem 0 !important;
 }
 
 /* Tiptap Table Styles - 모던 미니멀 가로선 표 스타일 (드래그 리사이즈를 위해 table-layout: fixed 사용) */
@@ -168,7 +167,8 @@ body {
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
-  margin: 1.5rem 0 !important; /* 기본 위아래 마진 부여 (에디터 내 포함) */
+  margin: 1.5rem 0 !important;
+  /* 기본 위아래 마진 부여 (에디터 내 포함) */
   border-top: none;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -356,7 +356,8 @@ body {
 }
 
 .table-wrapper table {
-  margin: 0 !important; /* 래퍼 내의 중복 마진 제거 */
+  margin: 0 !important;
+  /* 래퍼 내의 중복 마진 제거 */
 }
 
 /* 모바일 반응형 테이블 지원: 테이블이 부모 너비를 넘쳐도 극단적으로 찌그러지지 않고 가로 스크롤 가능하게 함 */
@@ -365,10 +366,13 @@ body {
     display: table !important;
     table-layout: fixed !important;
     width: 100% !important;
-    min-width: 720px !important; /* 모바일에서 고유 열 너비 비율을 유지하기 위해 최소 가로폭 강제 */
+    min-width: 720px !important;
+    /* 모바일에서 고유 열 너비 비율을 유지하기 위해 최소 가로폭 강제 */
   }
+
   .tiptap-content table.single-column {
-    min-width: 100% !important; /* 1열짜리 표(1x1 등)는 가로 스크롤 없이 화면 너비에 딱 피트되게 함 */
+    min-width: 100% !important;
+    /* 1열짜리 표(1x1 등)는 가로 스크롤 없이 화면 너비에 딱 피트되게 함 */
   }
 }
 
@@ -378,11 +382,13 @@ body {
     transform: translateX(120%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
   }
 }
+
 .animate-slide-in-right {
   animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
