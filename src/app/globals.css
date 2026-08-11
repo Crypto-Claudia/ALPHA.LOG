@@ -159,7 +159,7 @@ body {
 .tiptap-content hr {
   border: 0;
   border-top: 1px solid var(--card-border);
-  margin: 5rem 0 !important;
+  margin: 3rem 0 !important;
 }
 
 /* Tiptap Table Styles - 모던 미니멀 가로선 표 스타일 (드래그 리사이즈를 위해 table-layout: fixed 사용) */
