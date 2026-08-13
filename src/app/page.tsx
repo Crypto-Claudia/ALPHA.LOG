@@ -11,9 +11,11 @@ import {
   ChevronRight,
   Flame,
   ListFilter,
+  Search,
 } from "lucide-react";
 import { verifySessionCookie } from "@/lib/auth";
 import { logVisit } from "@/lib/logger";
+import SearchBar from "@/components/SearchBar";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -21,14 +23,32 @@ interface PageProps {
     category?: string;
     tag?: string;
     page?: string;
+    q?: string;
+    type?: string;
   }>;
 }
 
-// category / tag 필터링 시 구글 검색 엔진에 고유 타이틀이 잡히도록 동적 메타데이터 생성
+// category / tag / 검색 시 구글 검색 엔진에 고유 메타데이터 생성
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const categorySlug = searchParams.category;
   const tagSlug = searchParams.tag;
+  const rawQuery = searchParams.q?.trim() || "";
+  const searchQuery = rawQuery.length >= 2 ? rawQuery : "";
+  const searchType = searchParams.type || "all";
+
+  // 검색 결과 페이지는 중복 색인 방지를 위해 noindex, follow 설정
+  if (searchQuery) {
+    const typeLabel = searchType === "title" ? "제목" : searchType === "tag" ? "태그" : "제목+본문";
+    return {
+      title: `'${searchQuery}' (${typeLabel}) 검색 결과 - ALPHA.LOG`,
+      description: `'${searchQuery}' 키워드로 검색된 블로그 포스트 목록입니다.`,
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
+  }
 
   if (categorySlug) {
     try {
@@ -75,6 +95,9 @@ export default async function Home(props: PageProps) {
   const searchParams = await props.searchParams;
   const categorySlug = searchParams.category;
   const tagSlug = searchParams.tag;
+  const rawQuery = searchParams.q?.trim() || "";
+  const searchQuery = rawQuery.length >= 2 ? rawQuery : "";
+  const searchType = searchParams.type || "all";
   const currentPage = Math.max(1, parseInt(searchParams.page || "1", 10));
   const isAdmin = await verifySessionCookie();
 
@@ -82,6 +105,7 @@ export default async function Home(props: PageProps) {
   const pathParams = [];
   if (categorySlug) pathParams.push(`category=${categorySlug}`);
   if (tagSlug) pathParams.push(`tag=${tagSlug}`);
+  if (searchQuery) pathParams.push(`q=${encodeURIComponent(searchQuery)}&type=${searchType}`);
   if (currentPage > 1) pathParams.push(`page=${currentPage}`);
   const visitPath = pathParams.length > 0 ? `/?${pathParams.join("&")}` : "/";
   await logVisit(visitPath);
@@ -89,7 +113,7 @@ export default async function Home(props: PageProps) {
   // 1. 카테고리 목록 조회 (대분류 및 하위 소분류 트리 구조 포함)
   const categories = await prisma.category.findMany({
     where: {
-      parentId: null, // 대분류 우선 조회
+      parentId: null,
     },
     include: {
       children: {
@@ -139,7 +163,7 @@ export default async function Home(props: PageProps) {
     }
   }
 
-  // 4. 포스트 필터링 조건 설정
+  // 4. 포스트 필터링 조건 설정 (검색어, 카테고리, 태그, 관리자 권한)
   const where: any = { isDeleted: false };
   if (!isAdmin) {
     where.published = true;
@@ -151,26 +175,49 @@ export default async function Home(props: PageProps) {
     where.tags = { some: { slug: tagSlug } };
   }
 
+  // 검색 조건 분기
+  if (searchQuery) {
+    if (searchType === "title") {
+      where.title = { contains: searchQuery };
+    } else if (searchType === "tag") {
+      where.tags = { some: { name: { contains: searchQuery } } };
+    } else {
+      // all: 제목 또는 본문
+      where.OR = [
+        { title: { contains: searchQuery } },
+        { content: { contains: searchQuery } },
+      ];
+    }
+  }
+
   // 5. 총 매칭 게시글 수 카운트
   const totalCount = await prisma.post.count({ where });
 
   // 6. 페이지네이션 및 데이터 분할 계산
-  // 1페이지: 최신 카드 4개 + 목록 10개 (총 최대 14개 조회)
-  // 2페이지 이후: 목록 10개씩 조회
+  // 검색 중이거나 2페이지 이상이면 목록형 전용(10개)으로, 기본 홈 1페이지면 카드 4개 + 목록 10개(최대 14개)
+  const isSearchActive = !!searchQuery;
   const LIST_ITEMS_PER_PAGE = 10;
   const FEATURED_CARD_COUNT = 4;
 
   let totalPages = 1;
-  if (totalCount > 14) {
-    totalPages = 1 + Math.ceil((totalCount - 14) / LIST_ITEMS_PER_PAGE);
-  }
-
   let skip = 0;
-  let take = 14;
+  let take = 10;
 
-  if (currentPage > 1) {
-    skip = 14 + (currentPage - 2) * LIST_ITEMS_PER_PAGE;
+  if (isSearchActive) {
+    totalPages = Math.ceil(totalCount / LIST_ITEMS_PER_PAGE) || 1;
+    skip = (currentPage - 1) * LIST_ITEMS_PER_PAGE;
     take = LIST_ITEMS_PER_PAGE;
+  } else {
+    if (totalCount > 14) {
+      totalPages = 1 + Math.ceil((totalCount - 14) / LIST_ITEMS_PER_PAGE);
+    }
+    if (currentPage > 1) {
+      skip = 14 + (currentPage - 2) * LIST_ITEMS_PER_PAGE;
+      take = LIST_ITEMS_PER_PAGE;
+    } else {
+      skip = 0;
+      take = 14;
+    }
   }
 
   const fetchedPosts = await prisma.post.findMany({
@@ -191,17 +238,22 @@ export default async function Home(props: PageProps) {
     },
   });
 
-  const featuredPosts = currentPage === 1 ? fetchedPosts.slice(0, FEATURED_CARD_COUNT) : [];
-  const listPosts = currentPage === 1 ? fetchedPosts.slice(FEATURED_CARD_COUNT) : fetchedPosts;
+  const featuredPosts = (!isSearchActive && currentPage === 1) ? fetchedPosts.slice(0, FEATURED_CARD_COUNT) : [];
+  const listPosts = (!isSearchActive && currentPage === 1) ? fetchedPosts.slice(FEATURED_CARD_COUNT) : fetchedPosts;
 
   const activeCategory = categorySlug ? { name: activeCategoryName } : null;
   const activeTag = tagSlug ? tags.find((t: any) => t.slug === tagSlug) : null;
+  const searchTypeLabel = searchType === "title" ? "제목" : searchType === "tag" ? "태그" : "제목+본문";
 
   // 페이지 URL 생성 헬퍼
   const createPageUrl = (pageNumber: number) => {
     const params = new URLSearchParams();
     if (categorySlug) params.set("category", categorySlug);
     if (tagSlug) params.set("tag", tagSlug);
+    if (searchQuery) {
+      params.set("q", searchQuery);
+      params.set("type", searchType);
+    }
     if (pageNumber > 1) params.set("page", pageNumber.toString());
     const qs = params.toString();
     return qs ? `/?${qs}` : "/";
@@ -210,37 +262,66 @@ export default async function Home(props: PageProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
       {/* Posts Section */}
-      <div className="lg:col-span-3 space-y-8">
-        {/* Active Filter Header */}
-        {(activeCategory || activeTag) && (
+      <div className="lg:col-span-3 space-y-6">
+        {/* 상단 검색바 */}
+        <SearchBar />
+
+        {/* Active Filter / Search Banner */}
+        {(activeCategory || activeTag || isSearchActive) && (
           <div className="glass-panel p-4 rounded-2xl flex items-center justify-between border-violet-100 bg-violet-50">
-            <span className="text-slate-700 text-sm">
-              필터:{" "}
-              <strong className="text-violet-700 font-semibold">
-                {activeCategory ? `카테고리 [${activeCategory.name}]` : `태그 #${activeTag?.name}`}
-              </strong>
-              의 글 ({totalCount}개)
+            <span className="text-slate-700 text-sm flex items-center gap-1.5 flex-wrap">
+              {isSearchActive && (
+                <>
+                  <Search size={14} className="text-violet-600 shrink-0" />
+                  <span>
+                    검색: &ldquo;<strong className="text-violet-700 font-bold">{searchQuery}</strong>&rdquo; ({searchTypeLabel})의 결과 ({totalCount}개)
+                  </span>
+                </>
+              )}
+              {!isSearchActive && activeCategory && (
+                <span>
+                  카테고리: <strong className="text-violet-700 font-semibold">[{activeCategory.name}]</strong>의 글 ({totalCount}개)
+                </span>
+              )}
+              {!isSearchActive && activeTag && (
+                <span>
+                  태그: <strong className="text-violet-700 font-semibold">#{activeTag.name}</strong>의 글 ({totalCount}개)
+                </span>
+              )}
             </span>
-            <Link href="/" className="text-xs text-cyan-600 hover:text-cyan-700 transition-colors font-medium">
-              필터 초기화 &times;
+            <Link href="/" className="text-xs text-cyan-600 hover:text-cyan-700 transition-colors font-medium shrink-0 ml-2">
+              초기화 &times;
             </Link>
           </div>
         )}
 
         {totalCount === 0 ? (
           <div className="glass-panel rounded-3xl py-24 text-center border-slate-200">
-            <h3 className="text-xl font-bold text-slate-400 mb-2">아직 게시글이 없습니다.</h3>
-            <p className="text-sm text-slate-500 mb-6">첫 번째 블로그 글을 남겨보세요!</p>
-            <Link
-              href="/admin/write"
-              className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full bg-violet-600 hover:bg-violet-500 transition-all text-white shadow-lg shadow-violet-900/10"
-            >
-              글 작성하러 가기 <ArrowRight size={16} />
-            </Link>
+            <h3 className="text-xl font-bold text-slate-400 mb-2">
+              {isSearchActive ? "일치하는 검색 결과가 없습니다." : "아직 게시글이 없습니다."}
+            </h3>
+            <p className="text-sm text-slate-500 mb-6">
+              {isSearchActive ? "다른 검색어를 입력하거나 검색 모드를 변경해 보세요." : "첫 번째 블로그 글을 남겨보세요!"}
+            </p>
+            {isSearchActive ? (
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 transition-all text-white shadow-md"
+              >
+                전체 글로 돌아가기
+              </Link>
+            ) : (
+              <Link
+                href="/admin/write"
+                className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full bg-violet-600 hover:bg-violet-500 transition-all text-white shadow-lg shadow-violet-900/10"
+              >
+                글 작성하러 가기 <ArrowRight size={16} />
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-10">
-            {/* 1. 최신 4개 카드 그리드 영역 (1페이지에서만 노출) */}
+            {/* 1. 최신 4개 카드 그리드 영역 (검색 중이 아닌 기본 1페이지에서만 노출) */}
             {featuredPosts.length > 0 && (
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -342,7 +423,9 @@ export default async function Home(props: PageProps) {
                 <div className="flex items-center justify-between pt-2">
                   <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                     <ListFilter size={18} className="text-violet-600" />
-                    <span>전체 글 목록 {currentPage > 1 ? `(${currentPage} 페이지)` : ""}</span>
+                    <span>
+                      {isSearchActive ? "검색 결과 목록" : `전체 글 목록 ${currentPage > 1 ? `(${currentPage} 페이지)` : ""}`}
+                    </span>
                   </h3>
                   <span className="text-xs text-slate-400 font-medium">총 {totalCount}개의 글</span>
                 </div>
@@ -532,7 +615,7 @@ export default async function Home(props: PageProps) {
               <Link
                 href="/"
                 className={`flex items-center justify-between text-sm py-2 px-3.5 rounded-xl transition-all cursor-pointer ${
-                  !categorySlug
+                  !categorySlug && !isSearchActive
                     ? "bg-violet-600 text-white font-semibold shadow-sm"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 }`}
