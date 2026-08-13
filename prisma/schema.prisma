@@ -87,3 +87,17 @@ model VisitLog {
   @@index([path, createdAt])
 }
 
+model SearchLog {
+  id          Int      @id @default(autoincrement())
+  query       String   @db.VarChar(255) // 검색어
+  searchType  String   @db.VarChar(50)  // 검색 분류 (all, title, tag 등)
+  resultCount Int      @default(0)      // 매칭된 결과 수
+  statusCode  Int      @default(200)    // HTTP 리턴 상태 코드 (200, 400 등)
+  ip          String?
+  userAgent   String?  @db.VarChar(512)
+  createdAt   DateTime @default(now())
+
+  @@index([query, createdAt])
+  @@index([createdAt])
+}
+

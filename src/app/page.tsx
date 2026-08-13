@@ -14,7 +14,7 @@ import {
   Search,
 } from "lucide-react";
 import { verifySessionCookie } from "@/lib/auth";
-import { logVisit } from "@/lib/logger";
+import { logVisit, logSearch } from "@/lib/logger";
 import SearchBar from "@/components/SearchBar";
 import type { Metadata } from "next";
 
@@ -192,6 +192,11 @@ export default async function Home(props: PageProps) {
 
   // 5. 총 매칭 게시글 수 카운트
   const totalCount = await prisma.post.count({ where });
+
+  // 검색 요청 시 검색 이력 로그 DB 적재 (1페이지 검색 진입 시)
+  if (searchQuery && currentPage === 1) {
+    await logSearch(searchQuery, searchType, totalCount, 200);
+  }
 
   // 6. 페이지네이션 및 데이터 분할 계산
   // 검색 중이거나 2페이지 이상이면 목록형 전용(10개)으로, 기본 홈 1페이지면 카드 4개 + 목록 10개(최대 14개)
