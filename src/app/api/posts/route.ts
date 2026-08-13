@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { slugify } from "@/lib/utils";
+import { slugify, extractTextFromHtml } from "@/lib/utils";
 import { logActivity } from "@/lib/logger";
 
 // GET /api/posts - 글 목록 조회
@@ -109,10 +109,14 @@ export async function POST(request: Request) {
         })
       : [];
 
+    const finalSummary = summary && summary.trim()
+      ? summary.trim()
+      : extractTextFromHtml(content).slice(0, 500);
+
     const postData: any = {
       title,
       slug: finalSlug,
-      summary: summary || null,
+      summary: finalSummary || null,
       content,
       thumbnail: thumbnail || null,
       published: published ?? false,

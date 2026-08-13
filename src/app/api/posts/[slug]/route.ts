@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { slugify } from "@/lib/utils";
+import { slugify, extractTextFromHtml } from "@/lib/utils";
 import { logActivity } from "@/lib/logger";
 
 interface Params {
@@ -103,10 +103,16 @@ export async function PATCH(request: Request, props: Params) {
       }
     }
 
+    let finalSummary = summary !== undefined ? summary : post.summary;
+    if (!finalSummary || finalSummary.trim() === "") {
+      const activeContent = content !== undefined ? content : post.content;
+      finalSummary = extractTextFromHtml(activeContent).slice(0, 500);
+    }
+
     const updateData: any = {
       title: title ?? post.title,
       slug: finalSlug,
-      summary: summary !== undefined ? summary : post.summary,
+      summary: finalSummary || null,
       content: content ?? post.content,
       thumbnail: thumbnail !== undefined ? thumbnail : post.thumbnail,
       published: published !== undefined ? published : post.published,
