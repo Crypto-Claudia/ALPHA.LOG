@@ -403,3 +403,63 @@ body {
 .animate-slide-in-right {
   animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* --- 네이버형 링크 카드(Link Card) 디자인 --- */
+.link-card-container {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-decoration: none !important;
+}
+
+.link-card-link {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.link-card-image-box {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: #f8fafc; /* slate-50 */
+  border-bottom: 1px solid #e2e8f0; /* slate-200 */
+  position: relative;
+}
+
+.link-card-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  margin: 0 !important; /* tiptap img 기본 마진 강제 제거 */
+  border-radius: 0 !important;
+  transition: transform 0.3s ease-in-out;
+}
+
+.link-card-container:hover .link-card-img {
+  transform: scale(1.015);
+}
+
+.link-card-body {
+  text-align: left;
+}
+
+.link-card-title {
+  font-family: var(--font-sans);
+  font-size: 0.875rem !important; /* 14px */
+  font-weight: 700 !important;
+  color: #0f172a !important; /* slate-900 */
+  line-height: 1.4 !important;
+}
+
+.link-card-desc {
+  font-size: 0.75rem !important; /* 12px */
+  color: #64748b !important; /* slate-500 */
+  line-height: 1.5 !important;
+}
+
+.link-card-domain {
+  font-size: 0.625rem !important; /* 10px */
+  color: #059669 !important; /* emerald-600 */
+  font-weight: 600 !important;
+  text-transform: lowercase;
+}

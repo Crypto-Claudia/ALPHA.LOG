@@ -22,8 +22,10 @@ import {
   List, ListOrdered, Quote, Code, Image as ImageIcon,
   Table as TableIcon, Undo, Redo, X, Check, ChevronDown,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Link as LinkIcon, Minus
+  Link as LinkIcon, Minus, Link2
 } from "lucide-react";
+
+import { LinkCardExtension } from "./LinkCardExtension";
 
 // Tiptap font-size 인라인 스타일 가공을 위한 커스텀 확장 선언
 const FontSize = Extension.create({
@@ -149,6 +151,11 @@ export default function Editor({ content, onChange }: EditorProps) {
   const [showLinkPopover, setShowLinkPopover] = useState(false);
   const [selectionTick, setSelectionTick] = useState(0);
 
+  // 링크 카드 팝업/모달 상태
+  const [showLinkCardModal, setShowLinkCardModal] = useState(false);
+  const [linkCardUrlInput, setLinkCardUrlInput] = useState("");
+  const [linkCardLoading, setLinkCardLoading] = useState(false);
+
   // 직접 선택용 입력값 상태
   const [customTextColor, setCustomTextColor] = useState("#000000");
   const [customBgColor, setCustomBgColor] = useState("#ffffff");
@@ -223,6 +230,7 @@ export default function Editor({ content, onChange }: EditorProps) {
       TableRow,
       CustomTableCell,
       CustomTableHeader,
+      LinkCardExtension,
       TextStyle,
       FontFamily,
       Underline,
@@ -297,6 +305,41 @@ export default function Editor({ content, onChange }: EditorProps) {
       localStorage.setItem("recent-cell-colors", JSON.stringify(next));
       return next;
     });
+  };
+
+  // 링크 카드 삽입 핸들러
+  const handleInsertLinkCard = async () => {
+    if (!linkCardUrlInput) return;
+    setLinkCardLoading(true);
+
+    let targetUrl = linkCardUrlInput.trim();
+    if (!/^https?:\/\//i.test(targetUrl)) {
+      targetUrl = "https://" + targetUrl;
+    }
+
+    try {
+      const res = await fetch(`/api/og-metadata?url=${encodeURIComponent(targetUrl)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      editor.chain().focus().insertContent({
+        type: "linkCard",
+        attrs: {
+          url: data.url,
+          title: data.title,
+          description: data.description,
+          image: data.image,
+          domain: data.domain,
+        }
+      }).run();
+
+      setLinkCardUrlInput("");
+      setShowLinkCardModal(false);
+    } catch (err: any) {
+      alert(err.message || "링크 카드 생성 중 오류가 발생했습니다.");
+    } finally {
+      setLinkCardLoading(false);
+    }
   };
 
   // 하이퍼링크 생성/해제 핸들러
@@ -862,6 +905,15 @@ export default function Editor({ content, onChange }: EditorProps) {
             <ImageIcon size={16} />
           </button>
 
+          <button
+            type="button"
+            onClick={() => setShowLinkCardModal(true)}
+            className="p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-black/5 transition-colors cursor-pointer"
+            title="링크 카드 삽입"
+          >
+            <Link2 size={16} />
+          </button>
+
           <div className="flex-grow" />
 
           <button
@@ -1152,6 +1204,54 @@ export default function Editor({ content, onChange }: EditorProps) {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 링크 카드 입력 모달 */}
+      {showLinkCardModal && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 w-full max-w-md space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+              <Link2 size={16} className="text-violet-600" /> 링크 카드(미리보기) 삽입
+            </h3>
+            <p className="text-[10px] text-slate-400">네이버 블로그처럼 외부 주소나 다른 글 주소를 넣으면 썸네일과 요약 정보가 들어간 링크 카드로 변환됩니다.</p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 mb-1">연결 주소 (URL)</label>
+                <input
+                  type="text"
+                  placeholder="https://example.com 또는 블로그 글 주소"
+                  value={linkCardUrlInput}
+                  onChange={(e) => setLinkCardUrlInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !linkCardLoading) {
+                      handleInsertLinkCard();
+                    }
+                  }}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-violet-500 font-mono"
+                  autoFocus
+                />
+              </div>
+              <div className="flex justify-end gap-2 text-xs pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setShowLinkCardModal(false); setLinkCardUrlInput(""); }}
+                  className="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer"
+                  disabled={linkCardLoading}
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleInsertLinkCard}
+                  disabled={linkCardLoading}
+                  className="px-4 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {linkCardLoading ? "생성 중..." : "카드 삽입"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
