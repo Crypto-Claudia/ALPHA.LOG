@@ -445,20 +445,20 @@ body {
 
 .link-card-title {
   font-family: var(--font-sans);
-  font-size: 0.875rem !important; /* 14px */
+  font-size: 0.95rem !important; /* 15.2px */
   font-weight: 700 !important;
   color: #0f172a !important; /* slate-900 */
   line-height: 1.4 !important;
 }
 
 .link-card-desc {
-  font-size: 0.75rem !important; /* 12px */
+  font-size: 0.8rem !important; /* 12.8px */
   color: #64748b !important; /* slate-500 */
   line-height: 1.5 !important;
 }
 
 .link-card-domain {
-  font-size: 0.625rem !important; /* 10px */
+  font-size: 0.7rem !important; /* 11.2px */
   color: #059669 !important; /* emerald-600 */
   font-weight: 600 !important;
   text-transform: lowercase;

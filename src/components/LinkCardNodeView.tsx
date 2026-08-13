@@ -9,7 +9,7 @@ export default function LinkCardNodeView({ node, deleteNode, selected }: NodeVie
   return (
     <NodeViewWrapper className="w-full flex justify-center my-6 select-none">
       <div
-        className={`relative w-full max-w-xl border rounded-2xl overflow-hidden bg-white transition-all group ${
+        className={`relative w-full max-w-md border rounded-2xl overflow-hidden bg-white transition-all group ${
           selected
             ? "ring-4 ring-emerald-500 ring-offset-2 border-transparent shadow-md scale-[0.99]"
             : "border-slate-200 hover:border-slate-350 shadow-sm"

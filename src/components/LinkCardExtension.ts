@@ -78,7 +78,7 @@ export const LinkCardExtension = Node.create<LinkCardOptions>({
     return [
       "div",
       mergeAttributes(this.options.HTMLAttributes, {
-        class: "link-card-container my-6 max-w-xl mx-auto border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200",
+        class: "link-card-container my-6 max-w-md mx-auto border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200",
         "data-link-card": "",
         "data-url": url,
         "data-title": title,
