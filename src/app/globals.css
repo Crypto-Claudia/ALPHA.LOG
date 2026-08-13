@@ -408,6 +408,7 @@ body {
 .link-card-container {
   display: block;
   width: 100%;
+  max-width: 28rem !important; /* 이전 글을 포함해 일괄 max-w-md(448px) 크기로 강제 제한 */
   box-sizing: border-box;
   text-decoration: none !important;
 }
