@@ -137,6 +137,18 @@ body {
   font-size: 0.9em;
 }
 
+.tiptap-content a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  transition: color 0.15s ease-in-out;
+}
+
+.tiptap-content a:hover {
+  color: var(--primary-hover);
+}
+
 .tiptap-content img {
   max-width: 100%;
   height: auto;

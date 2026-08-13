@@ -238,7 +238,7 @@ export default function Editor({ content, onChange }: EditorProps) {
       TiptapLink.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-violet-650 underline hover:text-violet-850 transition-colors cursor-pointer",
+          class: "text-violet-600 underline hover:text-violet-800 transition-colors cursor-pointer",
         },
       }),
     ],
