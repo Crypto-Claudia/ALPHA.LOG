@@ -6,6 +6,7 @@ import { logVisit } from "@/lib/logger";
 import CommentSection from "@/components/CommentSection";
 import PostAdminActions from "@/components/PostAdminActions";
 import ImageLightbox from "@/components/ImageLightbox";
+import ExpandableTags from "@/components/ExpandableTags";
 import { Calendar, Eye, EyeOff, Folder, Tag as TagIcon, ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -165,15 +166,7 @@ export default async function PostDetailPage(props: Params) {
           <div className="tiptap-content text-slate-800" dangerouslySetInnerHTML={{ __html: post.content }} />
 
           {/* Tags Block */}
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-6 border-t border-slate-100">
-              {post.tags.map((tag: any) => (
-                <Link key={tag.id} href={`/?tag=${tag.slug}`} className="inline-flex items-center text-xs px-3 py-1 rounded-full border border-slate-200 text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-all">
-                  <TagIcon size={12} className="mr-1 text-cyan-600" /> {tag.name}
-                </Link>
-              ))}
-            </div>
-          )}
+          <ExpandableTags tags={post.tags} />
         </div>
       </div>
 

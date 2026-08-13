@@ -7,6 +7,7 @@ import { FolderPlus, Tag, Link2, Plus, ArrowLeft, ArrowUpDown, Calendar, Eye, Fo
 import Link from "next/link";
 import { showToast } from "@/components/Toast";
 import ImageLightbox from "@/components/ImageLightbox";
+import ExpandableTags from "@/components/ExpandableTags";
 
 interface Category {
   id: number;
@@ -632,16 +633,9 @@ export default function EditForm({ post, initialCategories }: EditFormProps) {
                 const parsedTags = tagsInput
                   .split(",")
                   .map((t) => t.trim())
-                  .filter((t) => t.length > 0);
-                return parsedTags.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 pt-6 border-t border-slate-100">
-                    {parsedTags.map((tag, idx) => (
-                      <span key={idx} className="inline-flex items-center text-xs px-3 py-1 rounded-full border border-slate-200 text-slate-600">
-                        <Tag size={12} className="mr-1 text-cyan-600" /> {tag}
-                      </span>
-                    ))}
-                  </div>
-                ) : null;
+                  .filter((t) => t.length > 0)
+                  .map((t, idx) => ({ id: idx, name: t, slug: t }));
+                return <ExpandableTags tags={parsedTags} isPreview={true} />;
               })()}
             </div>
           </div>
