@@ -90,14 +90,15 @@ export async function PATCH(request: Request, props: Params) {
 
     const finalSlug = newSlug ? slugify(newSlug) : post.slug;
 
-    // 슬러그가 바뀌는 경우 중복 검사
+    // 슬러그가 바뀌는 경우 중복 검사 (기존 글 및 이전 리다이렉트 슬러그 검증)
     if (finalSlug !== decodedSlug) {
-      const slugDuplicate = await prisma.post.findUnique({
-        where: { slug: finalSlug },
-      });
-      if (slugDuplicate) {
+      const [slugDuplicate, historyDuplicate] = await Promise.all([
+        prisma.post.findUnique({ where: { slug: finalSlug } }),
+        prisma.postSlugHistory.findUnique({ where: { oldSlug: finalSlug } }),
+      ]);
+      if (slugDuplicate || historyDuplicate) {
         return NextResponse.json(
-          { error: "이미 존재하는 글 슬러그(URL)입니다." },
+          { error: "이미 사용 중이거나 이전 리다이렉트 주소로 등록된 슬러그(URL)입니다. 다른 슬러그를 입력해 주세요." },
           { status: 400 }
         );
       }
@@ -144,14 +145,41 @@ export async function PATCH(request: Request, props: Params) {
       }
     }
 
-    const updatedPost = await prisma.post.update({
-      where: { slug: decodedSlug },
-      data: updateData,
-      include: {
-        category: true,
-        tags: true,
-      },
-    });
+    let updatedPost;
+
+    if (finalSlug !== decodedSlug) {
+      // 슬러그가 변경된 경우: 포스트 업데이트와 함께 이전 슬러그를 PostSlugHistory에 자동 적재
+      const [updated] = await prisma.$transaction([
+        prisma.post.update({
+          where: { slug: decodedSlug },
+          data: updateData,
+          include: {
+            category: true,
+            tags: true,
+          },
+        }),
+        prisma.postSlugHistory.upsert({
+          where: { oldSlug: decodedSlug },
+          create: {
+            oldSlug: decodedSlug,
+            postId: post.id,
+          },
+          update: {
+            postId: post.id,
+          },
+        }),
+      ]);
+      updatedPost = updated;
+    } else {
+      updatedPost = await prisma.post.update({
+        where: { slug: decodedSlug },
+        data: updateData,
+        include: {
+          category: true,
+          tags: true,
+        },
+      });
+    }
 
     // 포스트 수정 활동 로그 적재
     await logActivity("UPDATE_POST", updatedPost.slug, updatedPost.title);

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect, RedirectType } from "next/navigation";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { verifySessionCookie } from "@/lib/auth";
@@ -20,10 +20,20 @@ interface Params {
 export async function generateMetadata(props: Params): Promise<Metadata> {
   const { slug } = await props.params;
   const decodedSlug = decodeURIComponent(slug);
-  const post = await prisma.post.findUnique({
+  let post = await prisma.post.findUnique({
     where: { slug: decodedSlug },
     select: { title: true, summary: true, thumbnail: true },
   });
+
+  if (!post) {
+    const redirectHistory = await prisma.postSlugHistory.findUnique({
+      where: { oldSlug: decodedSlug },
+      include: { post: { select: { title: true, summary: true, thumbnail: true, isDeleted: true } } },
+    });
+    if (redirectHistory && redirectHistory.post && !redirectHistory.post.isDeleted) {
+      post = redirectHistory.post;
+    }
+  }
 
   if (!post) {
     return {
@@ -49,6 +59,34 @@ export default async function PostDetailPage(props: Params) {
   const decodedSlug = decodeURIComponent(slug);
   const isAdmin = await verifySessionCookie();
 
+  // 1. 요청된 슬러그로 글 존재 여부 사전 검증
+  const checkPost = await prisma.post.findUnique({
+    where: { slug: decodedSlug },
+    select: { isDeleted: true, published: true },
+  });
+
+  if (!checkPost || checkPost.isDeleted) {
+    // 2. 글을 찾지 못한 경우: 이전 슬러그 이력 테이블(PostSlugHistory) 조회
+    const redirectHistory = await prisma.postSlugHistory.findUnique({
+      where: { oldSlug: decodedSlug },
+      include: { post: { select: { slug: true, isDeleted: true, published: true } } },
+    });
+
+    // 이전 슬러그가 존재하고 해당 글이 삭제되지 않았다면 새 주소로 301 영구 리다이렉트
+    if (redirectHistory && redirectHistory.post && !redirectHistory.post.isDeleted) {
+      if (redirectHistory.post.published || isAdmin) {
+        redirect(`/posts/${encodeURIComponent(redirectHistory.post.slug)}`, RedirectType.replace);
+      }
+    }
+
+    notFound();
+  }
+
+  // 비관리자가 비공개 글 접근 시 404 처리
+  if (!checkPost.published && !isAdmin) {
+    notFound();
+  }
+
   let post;
   try {
     const queryInclude = {
@@ -70,21 +108,6 @@ export default async function PostDetailPage(props: Params) {
         },
       },
     };
-
-    // 삭제 여부 및 공개 여부 사전 검증
-    const checkPost = await prisma.post.findUnique({
-      where: { slug: decodedSlug },
-      select: { isDeleted: true, published: true },
-    });
-
-    if (!checkPost || checkPost.isDeleted) {
-      notFound();
-    }
-
-    // 비관리자가 비공개 글 접근 시 404 처리
-    if (!checkPost.published && !isAdmin) {
-      notFound();
-    }
 
     // 상세 페이지 진입 시 조회수 항상 1 증가
     post = await prisma.post.update({

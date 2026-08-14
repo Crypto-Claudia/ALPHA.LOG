@@ -43,6 +43,7 @@ model Post {
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   tags       Tag[]     @relation("PostTags")
   comments   Comment[]
+  slugHistories PostSlugHistory[]
 
   @@index([published, createdAt]) // 공개글 최신순 정렬 최적화
 }
@@ -99,5 +100,16 @@ model SearchLog {
 
   @@index([query, createdAt])
   @@index([createdAt])
+}
+
+model PostSlugHistory {
+  id        Int      @id @default(autoincrement())
+  oldSlug   String   @unique @db.VarChar(255) // 이전 슬러그
+  postId    Int      // 연결된 원본 포스트 ID
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([oldSlug])
+  @@index([postId])
 }
 

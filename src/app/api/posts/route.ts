@@ -84,16 +84,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // 슬러그 고유성 검증 및 자동 생성
+    // 슬러그 고유성 검증 및 자동 생성 (기존 글 및 리다이렉트 이력 슬러그 충돌 방지)
     const finalSlug = slug ? slugify(slug) : slugify(title);
     
-    const existingPost = await prisma.post.findUnique({
-      where: { slug: finalSlug },
-    });
+    const [existingPost, existingHistory] = await Promise.all([
+      prisma.post.findUnique({ where: { slug: finalSlug } }),
+      prisma.postSlugHistory.findUnique({ where: { oldSlug: finalSlug } }),
+    ]);
 
-    if (existingPost) {
+    if (existingPost || existingHistory) {
       return NextResponse.json(
-        { error: "이미 존재하는 글 슬러그(URL)입니다. 다른 제목이나 슬러그를 입력해 주세요." },
+        { error: "이미 사용 중이거나 이전 리다이렉트 주소로 등록된 슬러그(URL)입니다. 다른 제목이나 슬러그를 입력해 주세요." },
         { status: 400 }
       );
     }
