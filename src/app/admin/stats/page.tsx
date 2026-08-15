@@ -14,6 +14,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
+import CleanImagesButton from "@/components/CleanImagesButton";
 
 export const revalidate = 0; // 통계 페이지이므로 매번 새로운 실시간 데이터 로드
 
@@ -181,12 +182,15 @@ export default async function AdminStatsPage(props: PageProps) {
             블로그의 실시간 접속 현황 및 관리자 활동 정보를 조회할 수 있는 페이지입니다.
           </p>
         </div>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm w-fit"
-        >
-          메인으로 이동
-        </Link>
+        <div className="flex items-center gap-3 flex-wrap">
+          <CleanImagesButton />
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm w-fit"
+          >
+            메인으로 이동
+          </Link>
+        </div>
       </div>
 
       {/* Metrics Grid */}
