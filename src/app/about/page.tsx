@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Sparkles, Database, TrendingUp, ShieldAlert, Mail, ArrowLeft, Layers, Compass, CheckCircle2 } from "lucide-react";
+import { logVisit } from "@/lib/logger";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "사이트 소개 - ALPHA.LOG",
@@ -12,7 +15,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  await logVisit("/about");
+
   return (
     <div className="max-w-[860px] mx-auto space-y-12 py-4">
       {/* Top Back Navigation */}
