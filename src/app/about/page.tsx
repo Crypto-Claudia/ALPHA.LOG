@@ -130,12 +130,12 @@ export default function AboutPage() {
           </p>
         </div>
         <div className="flex-shrink-0">
-          <a
-            href="mailto:contact@alpha-log.xyz"
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-violet-700 bg-violet-100/70 hover:bg-violet-100 rounded-xl transition-colors"
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-all shadow-sm shadow-violet-900/10"
           >
-            이메일 보내기
-          </a>
+            문의하기
+          </Link>
         </div>
       </section>
     </div>
