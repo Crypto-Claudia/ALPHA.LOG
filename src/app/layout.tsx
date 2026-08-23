@@ -93,7 +93,7 @@ export default async function RootLayout({
                 {isAdmin && (
                   <>
                     <Link href="/admin/stats" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                      통계
+                      관리
                     </Link>
                     <Link href="/admin/write" className="text-sm font-medium px-4 py-1.5 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors shadow-lg shadow-violet-900/10">
                       글쓰기

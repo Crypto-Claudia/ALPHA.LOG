@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import CleanImagesButton from "@/components/CleanImagesButton";
+import AdminInquiryList from "@/components/AdminInquiryList";
 
 export const revalidate = 0; // 통계 페이지이므로 매번 새로운 실시간 데이터 로드
 
@@ -113,6 +114,8 @@ export default async function AdminStatsPage(props: PageProps) {
     recentActivities,
     totalFilteredVisits,
     recentVisits,
+    inquiries,
+    unreadInquiriesCount,
   ] = await Promise.all([
     prisma.visitLog.count(),
     prisma.visitLog.count({ where: { createdAt: { gte: todayStart } } }),
@@ -135,6 +138,11 @@ export default async function AdminStatsPage(props: PageProps) {
       skip: (currentPage - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
+    prisma.inquiry.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    }),
+    prisma.inquiry.count({ where: { isRead: false } }),
   ]);
 
   const totalPages = Math.ceil(totalFilteredVisits / PAGE_SIZE) || 1;
@@ -176,10 +184,10 @@ export default async function AdminStatsPage(props: PageProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <BarChart3 className="text-violet-600" /> 통계 대시보드
+            <BarChart3 className="text-violet-600" /> 관리 대시보드
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            블로그의 실시간 접속 현황 및 관리자 활동 정보를 조회할 수 있는 페이지입니다.
+            블로그의 접속 통계, 접수된 문의 내역, 활동 로그를 조회하고 관리할 수 있는 페이지입니다.
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
@@ -239,6 +247,9 @@ export default async function AdminStatsPage(props: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Inquiries Section (문의 내역 관리) */}
+      <AdminInquiryList initialInquiries={inquiries} unreadCount={unreadInquiriesCount} />
 
       {/* Main Stats Area */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
