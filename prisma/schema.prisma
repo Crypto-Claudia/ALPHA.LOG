@@ -127,3 +127,15 @@ model Inquiry {
   @@index([isRead, createdAt])
 }
 
+model LoginAttempt {
+  id            Int      @id @default(autoincrement())
+  inputPassword String   @db.VarChar(255) // 사용자가 입력한 비밀번호 값
+  isSuccess     Boolean  // 인증 성공 여부 (true: 성공, false: 실패)
+  ip            String?  @db.VarChar(100) // 접속자 IP
+  userAgent     String?  @db.VarChar(512) // 기기 및 브라우저 정보
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([isSuccess, createdAt])
+}
+

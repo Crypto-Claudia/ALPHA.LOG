@@ -52,6 +52,12 @@ function getBadgeColor(action: string) {
       return "text-violet-700 bg-violet-50 border-violet-100";
     case "DELETE_COMMENT":
       return "text-red-700 bg-red-50 border-red-100";
+    case "LOGIN_SUCCESS":
+      return "text-blue-700 bg-blue-50 border-blue-100";
+    case "LOGIN_FAILED":
+      return "text-rose-700 bg-rose-50 border-rose-100";
+    case "NEW_INQUIRY":
+      return "text-purple-700 bg-purple-50 border-purple-100";
     default:
       return "text-slate-700 bg-slate-50 border-slate-100";
   }
@@ -69,6 +75,12 @@ function getFriendlyAction(action: string) {
       return "댓글 작성";
     case "DELETE_COMMENT":
       return "댓글 삭제";
+    case "LOGIN_SUCCESS":
+      return "로그인 성공";
+    case "LOGIN_FAILED":
+      return "로그인 실패";
+    case "NEW_INQUIRY":
+      return "문의 접수";
     default:
       return action;
   }
