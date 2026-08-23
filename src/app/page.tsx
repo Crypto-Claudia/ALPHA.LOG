@@ -111,7 +111,7 @@ export default async function Home(props: PageProps) {
   await logVisit(visitPath);
 
   // 1. 카테고리 목록 조회 (대분류 및 하위 소분류 트리 구조 포함)
-  const categories = await prisma.category.findMany({
+  const rawCategories = await prisma.category.findMany({
     where: {
       parentId: null,
     },
@@ -119,28 +119,50 @@ export default async function Home(props: PageProps) {
       children: {
         include: {
           _count: {
-            select: { posts: { where: { published: true } } },
+            select: { posts: { where: { published: true, isDeleted: false } } },
           },
         },
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       },
       _count: {
-        select: { posts: { where: { published: true } } },
+        select: { posts: { where: { published: true, isDeleted: false } } },
       },
     },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
   });
 
-  // 2. 인기 태그 목록 조회
-  const tags = await prisma.tag.findMany({
+  // 관리자가 아닌 일반 방문자/크롤러: 게시글이 0개인 빈 카테고리 및 하위 카테고리는 노출하지 않고 자동 숨김 처리 (애드센스 심사 최적화)
+  const categories = isAdmin
+    ? rawCategories
+    : rawCategories
+        .map((c: any) => {
+          const visibleChildren = c.children?.filter((child: any) => child._count.posts > 0) || [];
+          return {
+            ...c,
+            children: visibleChildren,
+          };
+        })
+        .filter((c: any) => {
+          const totalPosts =
+            c._count.posts +
+            (c.children?.reduce((acc: number, child: any) => acc + (child._count?.posts || 0), 0) || 0);
+          return totalPosts > 0;
+        });
+
+  // 2. 인기 태그 목록 조회 (관리자가 아니면 발행된 글이 있는 태그만 노출)
+  const rawTags = await prisma.tag.findMany({
     take: 15,
     include: {
       _count: {
-        select: { posts: { where: { published: true } } },
+        select: { posts: { where: { published: true, isDeleted: false } } },
       },
     },
     orderBy: { posts: { _count: "desc" } },
   });
+
+  const tags = isAdmin
+    ? rawTags
+    : rawTags.filter((t: any) => t._count.posts > 0);
 
   // 3. 카테고리 계층형 필터링 ID 수집
   let targetCategoryIds: number[] = [];
@@ -661,12 +683,19 @@ export default async function Home(props: PageProps) {
                     }`}
                   >
                     <span>{c.name}</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
-                        categorySlug === c.slug ? "bg-violet-750 text-violet-100" : "bg-slate-100 text-slate-500"
-                      }`}
-                    >
-                      {totalPosts}
+                    <span className="flex items-center gap-1">
+                      {isAdmin && totalPosts === 0 && (
+                        <span className="text-[9px] px-1 py-0.2 rounded font-sans font-bold bg-amber-50 text-amber-600 border border-amber-200">
+                          숨김
+                        </span>
+                      )}
+                      <span
+                        className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
+                          categorySlug === c.slug ? "bg-violet-750 text-violet-100" : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {totalPosts}
+                      </span>
                     </span>
                   </Link>
 
@@ -686,14 +715,21 @@ export default async function Home(props: PageProps) {
                             <span className="flex items-center gap-1.5">
                               <span className="text-slate-300 font-normal">└</span> {child.name}
                             </span>
-                            <span
-                              className={`text-[9px] px-1 py-0.2 rounded font-mono ${
-                                categorySlug === child.slug
-                                  ? "bg-cyan-700 text-cyan-100"
-                                  : "bg-slate-100 text-slate-400"
-                              }`}
-                            >
-                              {child._count.posts}
+                            <span className="flex items-center gap-1">
+                              {isAdmin && child._count.posts === 0 && (
+                                <span className="text-[9px] px-1 py-0.2 rounded font-sans font-bold bg-amber-50 text-amber-600 border border-amber-200">
+                                  숨김
+                                </span>
+                              )}
+                              <span
+                                className={`text-[9px] px-1 py-0.2 rounded font-mono ${
+                                  categorySlug === child.slug
+                                    ? "bg-cyan-700 text-cyan-100"
+                                    : "bg-slate-100 text-slate-400"
+                                }`}
+                              >
+                                {child._count.posts}
+                              </span>
                             </span>
                           </Link>
                         </li>
