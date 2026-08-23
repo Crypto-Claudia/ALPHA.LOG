@@ -122,6 +122,13 @@ export default async function RootLayout({
                 사이트 소개
               </Link>
               <span className="text-slate-300">·</span>
+              <Link
+                href="/contact"
+                className="hover:text-violet-600 transition-colors"
+              >
+                문의하기
+              </Link>
+              <span className="text-slate-300">·</span>
               <a
                 href="/privacy_policy.html"
                 target="_blank"

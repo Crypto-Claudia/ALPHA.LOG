@@ -113,3 +113,17 @@ model PostSlugHistory {
   @@index([postId])
 }
 
+model Inquiry {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(255) // 회신 받을 이메일
+  title     String   @db.VarChar(255) // 문의 제목
+  content   String   @db.Text         // 문의 내용
+  ip        String?  @db.VarChar(100)
+  userAgent String?  @db.VarChar(512)
+  isRead    Boolean  @default(false)  // 관리자 확인 여부
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([isRead, createdAt])
+}
+
