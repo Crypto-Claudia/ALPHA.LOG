@@ -301,6 +301,9 @@ export default function CommentSection({ postId, initialComments, isAdmin = fals
             <Send size={16} />
           </button>
         </div>
+        <p className="text-[11px] text-slate-400">
+          댓글 작성 시 <a href="/privacy_policy.html" target="_blank" rel="noopener noreferrer" className="text-slate-500 underline underline-offset-2 hover:text-violet-600 transition-colors">개인정보 처리방침</a>에 동의하는 것으로 간주됩니다.
+        </p>
       </form>
 
       {/* 삭제 확인 모달 */}

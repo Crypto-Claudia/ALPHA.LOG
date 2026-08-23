@@ -112,9 +112,21 @@ export default async function RootLayout({
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-[rgba(0,0,0,0.04)] py-6 mt-12 bg-black/[0.02]">
-          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} Alpha.Log. 생각과 자산이 복리로 쌓이는 기록 보관소.
+        <footer className="border-t border-slate-200/80 py-8 mt-16 bg-slate-50/60">
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 space-y-2.5">
+            <div className="flex items-center justify-center gap-4 font-semibold text-slate-600">
+              <a
+                href="/privacy_policy.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-violet-600 transition-colors"
+              >
+                개인정보 처리방침
+              </a>
+            </div>
+            <div>
+              &copy; {new Date().getFullYear()} ALPHA.LOG. 생각과 자산이 복리로 쌓이는 기록 보관소.
+            </div>
           </div>
         </footer>
 
