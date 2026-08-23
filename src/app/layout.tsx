@@ -115,6 +115,13 @@ export default async function RootLayout({
         <footer className="border-t border-slate-200/80 py-8 mt-16 bg-slate-50/60">
           <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 space-y-2.5">
             <div className="flex items-center justify-center gap-4 font-semibold text-slate-600">
+              <Link
+                href="/about"
+                className="hover:text-violet-600 transition-colors"
+              >
+                사이트 소개
+              </Link>
+              <span className="text-slate-300">·</span>
               <a
                 href="/privacy_policy.html"
                 target="_blank"
