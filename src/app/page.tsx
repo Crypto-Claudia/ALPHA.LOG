@@ -264,6 +264,23 @@ export default async function Home(props: PageProps) {
     return qs ? `/?${qs}` : "/";
   };
 
+  // 페이지네이션 번호 윈도우 계산 (최대 5개 노출하여 모바일 가로 스크롤 방지)
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
       {/* Posts Section */}
@@ -571,7 +588,7 @@ export default async function Home(props: PageProps) {
 
                 {/* Page Number Buttons */}
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                  {getPageNumbers().map((pageNum) => {
                     const isActive = pageNum === currentPage;
                     return (
                       <Link
